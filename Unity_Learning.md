@@ -102,3 +102,57 @@ Prefab 你可以理解为GameObject的模版，用于批量生成相似的GameOb
 10. 画板(Palette)
 
     平铺转经常用的用来绘制平铺地图(Tile Map)的工具，通过导入生成的单独的平铺砖 来对grid里的平铺地图进行填充。
+
+
+
+在这里我还是强烈推荐，如果想从0开始做一个2d的游戏 那么我非常建议跟着ruby's adventure的教程一课一课走下去，学完之后就能靠那些基础做一个像样的2d游戏架子了。 下面我会举一些常见的场景来讲解一些功能的实现。
+
+### 常见场景
+
+1. 如何创建一个带图的游戏对象？
+
+     首先你需要的是把所有的资源导入到Unity的Assets里, 拿一个png为例，你点右边的小箭头会出现一个气泡 里面也是原图。 这个气泡里的东西本身就是sprite对象， 直接拖到scene里面就可以直接生成一个sprite的GameObject了，在右边的inspector里的sprite renderer 组件里能看到这个引用。如果原图的sprite发生了改变，那么绑定了这个sprite的gameobject也会改变。 
+
+2. 如何让游戏对象移动？
+
+     首先让游戏对象移动基本上都是要使用脚本的，你需要做的就是在unity 创建一个C#脚本, 让后将脚本拖到你想要控制的对象上。
+
+     基本上来说有两种模式:
+
+      一种是设置物体的速度 让物理系统去处理位置变化, 不过需要给对象加上Rigidbody2D组件。形如：
+
+   ```c#
+   Rigidbody2D rigidbody2d = GetComponent<Rigidbody2D>();
+   Vector2 SpeedNow = rigidbody2d.velocity;
+   SpeedNow.x = 8.0f;
+   rigidbody2d.velocity = SpeedNow;
+   ```
+
+   
+
+      还有一种是自己计算变化，直接在Update的生命周期里设置坐标来实现位移。 
+
+   ​	计算坐标的时候也有两种计算变化的方式一个是根据每帧的刷新去设置变化值，还有一种是利用Unity自带的Time类里的deltaTime来计算变化值。
+
+3. 如何创建并控制动画
+
+   ​	首先选中一个游戏对象，然后在inspector里添加一个动画器组件。接着在Assets 里创建一个Animator 最后拖到组件对应的槽里。这个时候就需要我们打开动画窗口，如果当前带动画器的对象没有动画 它会提示你去创建Animation，若没有动画器的时候也会创建一个默认Animator。
+
+   ​	关于创建动画， 其实就是把关键帧的sprite给拖到时间轴上进行处理。你可以通过采样的频率来控制动画的速度。同时你也可以通过它自带的一些变换来完成翻转sprite方向等功能。如果你想要看效果可以点击动画窗口上的播放键然后在scene里看。
+
+   ​	当你创建了一部分动画之后你就要通过Animator去管理这些动画的状态变化。这个时候就需要用到Animator的窗口了, 本质上Animator是通过一个动画的状态机来控制动画切换的。主要用到的有三个部分:
+
+   1. 用来判断状态变化的参数
+   2. 动画的状态机
+   3. 状态之间的过渡
+
+     值得一提的是 虽然这个Animator窗口里有很多内容，但是最后的值和动态机以及过渡的关系设置都是在Inspector下面的， 需要点击状态和过渡去检视，具体的设置方法可以看ruby‘s adventure动画相关章节。
+
+   ​	最后只需要在脚本里去设置和控制动画的参数就能完成动画的控制了。形如：
+
+   ```c#
+   Animator animator = GetComponent<Animator>();
+   animator.SetBool("IsDestroyed", false);
+   ```
+
+   
