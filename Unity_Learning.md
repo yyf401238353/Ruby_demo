@@ -211,3 +211,58 @@
 
      ​	之后的操作就十分简单了, 你就可以直接从画板里选择你想要的砖块贴到场景里的小方格里面去了。如果发现边缘没有填充的话，你需要去sprite那里去调整输入的大小 默认是100。 画板相关的一些工具就不在这里一一赘述了, 可以自行尝试。
 
+6. **如何使用摄像头插件 Cinemachine**
+
+     摄像头控制本来是一个比较复杂的过程 特别是3d的摄像头, 在2d的环境下稍微简单点不需要进行z轴变换以及旋转。[unity中camera摄像头控制详解](https://www.cnblogs.com/machine/p/unity.html) 这篇文章里讲解了很多关于摄像头控制的解说, 想要深入了解3d以及原理相关的可以看看。在这里是想介绍一下一个摄像头插件，在ruby的教程里也有提到，功能强大的Cinemachine。
+
+     本质上这个Cinemachine是通过绑定Camera对象创建虚拟摄像头来控制镜头的，它有许多好用的功能, 比如跟踪游戏对象，设置摄像头的活动范围等。
+
+   // 待完善
+
+7. **如何设置碰撞盒以及相关事件**
+
+     关于碰撞盒组件, 这里主要介绍两种类型的碰撞盒, 一种是盒型碰撞盒(Box Collider 2D), 另外一个是平铺砖块碰撞盒(Tilemap Collider 2D) , 这两个碰撞盒的作用就和字面上的一样，一个是正方形的格子的碰撞盒，一个是给Tilemap使用的碰撞盒，tilemap的碰撞盒形状是根据tile来的，可以选择自己去勾勒形状的sprite模式也可以选择块状的。基本这两个就能涵盖2d的几乎所有的简单应用场景。 添加碰撞盒十分简单，就是在检查器里面添加对应的组件即可， 在不调整游戏对象的layer之前默认都是default, 在项目设置里能看到default是跟所有的基础层级包括他本身的层级都会产生碰撞的。在这种情况下所有的刚体都会和碰撞盒属性的产生作用而产生物理阻挡的效果。
+
+   <center><img src='https://pic2.zhimg.com/80/v2-3284286e3fc28ad7f160e66407254eb8_720w.png' alt='层级碰撞设定' height=300px /></center>
+
+     如果你想让某些游戏对象只跟特定的层级的对象发生碰撞关系 那么你可以自定义图层 不过图层的个数是有限的 只有32个id 所以无限增加图层不是一个非常好的选择, 应该只对特殊的游戏对象组类比如背景相关的游戏对象做这些处理。
+
+     现在来说一下如何在碰撞的时候触发你想要的脚本, 这里介绍两个钩子OnTriggerEnter2D和OnCollisionEnter2D 这两个是对应碰撞盒的两种状态的，当你在碰撞盒的属性里勾选了触发器(trigger)选项以后碰撞盒就不再会物理阻挡其他刚体, 取而代之的时候可以通过Trigger来控制一些事, 比如进入区域 脱离区域 在区域中等这些状态的钩子。而Collision的那个钩子就比较简单， 就是碰撞的时候触发，不过值得注意的是两者获得的参数是不一样的 一个是Collision2D 一个是Collider2D, 他们获取gameobject的方式不一样，以下是两段示例代码:
+
+   ```C#
+   void OnCollisionEnter2D(Collision2D collision)
+     {
+         HeroController hero = collision.gameObject.GetComponent<HeroController>();
+         if (hero != null)
+         {
+             // Do something
+         }
+     }
+   
+   void OnTriggerEnter2D(Collider2D other)
+   {
+       HeroController  controller = other.GetComponent<HeroController>();
+       if (controller != null)
+       {
+          // Do something
+       }
+   }
+   ```
+
+   
+
+   
+
+8. **如何渲染2d光源**
+
+   由于这一块笔者也没有非常熟练 还是贴上相关的资料大家一起学习吧。
+
+   https://www.youtube.com/watch?v=nkgGyO9VG54
+
+   https://gamedevacademy.org/unity-universal-render-pipeline-tutorial/
+
+   基本上就是使用 Universal Render Pipeline 这个package来完成2d light渲染的。让你告别用3d光源的渲染方式来渲染2d，不过也没有想象中的无缝衔接 而且应该现在还没有稳定版(截至2020.08.15)，使用起来方便还是挺方便的。
+
+     简单的光源原理就是你可以添加光源到场景里， 然后你给游戏对象加上光渲染相关的材质。 如果你不加上基础的背景光的话你所有的对象就都会是黑的 除了被你设置光源照亮的地方。2d的光源类型跟3d的也差的不是太多, 大家可以在创建光源里看看。 
+
+     光源的控制的话根据Universal Render Pipeline里的2Dlight相关API进行操作即可, 可以控制光源的范围和变化。
